@@ -1,0 +1,63 @@
+    * { box-sizing: border-box; }
+    body { font-family: "Meiryo", "Hiragino Kaku Gothic ProN", sans-serif; margin: 0; background: #eef2f5; color: #333; font-size: 14px; }
+    
+    /* 空想シリーズ風ヘッダー＆ナビゲーション */
+    header { background: #1b365d; color: white; padding: 15px 20px; border-bottom: 4px solid #0078d7; }
+    .header-inner { max-width: 1050px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
+    .site-title { margin: 0; font-size: 1.5em; letter-spacing: 1px; }
+    .site-sub { font-size: 0.8em; color: #b0c4de; margin-top: 3px; }
+    
+    nav { background: #2c4d75; border-bottom: 1px solid #1b365d; }
+    .nav-inner { max-width: 1050px; margin: 0 auto; display: flex; flex-wrap: wrap; }
+    .nav-inner a { color: white; text-decoration: none; padding: 10px 18px; font-weight: bold; border-right: 1px solid #3d628f; transition: 0.2s; }
+    .nav-inner a:hover { background: #0078d7; }
+    .nav-inner a.create-link { background: #e67e22; }
+    .nav-inner a.create-link:hover { background: #d35400; }
+
+    /* 2カラムレイアウト（メイン + サイドメニュー） */
+    .container { max-width: 1050px; margin: 20px auto; padding: 0 15px; display: grid; grid-template-columns: 1fr 280px; gap: 20px; }
+    @media (max-width: 768px) { .container { grid-template-columns: 1fr; } }
+
+    /* ボックス共通デザイン */
+    .box { background: white; border: 1px solid #ccd6e0; border-radius: 4px; margin-bottom: 20px; overflow: hidden; }
+    .box-header { background: #f0f4f8; padding: 10px 15px; font-weight: bold; border-bottom: 1px solid #ccd6e0; color: #1b365d; display: flex; justify-content: space-between; align-items: center; }
+    .box-body { padding: 15px; }
+
+    /* サイドメニュー */
+    .side-menu ul { list-style: none; padding: 0; margin: 0; }
+    .side-menu li { border-bottom: 1px dashed #ddd; }
+    .side-menu li:last-child { border-bottom: none; }
+    .side-menu a { display: block; padding: 10px 5px; color: #0066cc; text-decoration: none; font-weight: bold; }
+    .side-menu a:hover { background: #f5f9fc; text-decoration: underline; }
+    .btn-tetsudesign { display: block; text-align: center; background: #e67e22; color: white !important; padding: 12px; border-radius: 4px; text-decoration: none !important; font-weight: bold; margin-bottom: 10px; }
+    .btn-tetsudesign:hover { background: #d35400; }
+
+    /* 投稿フォーム */
+    input, textarea { width: 100%; margin-bottom: 10px; padding: 8px; border: 1px solid #ccc; border-radius: 3px; font-family: inherit; }
+    button.submit-btn { background: #0078d7; color: white; border: none; padding: 10px 20px; border-radius: 3px; cursor: pointer; font-weight: bold; }
+    button.submit-btn:hover { background: #005a9e; }
+
+    /* 作品リスト（カード） */
+    .post-item { border: 1px solid #d0d7de; background: white; border-radius: 4px; margin-bottom: 20px; padding: 15px; }
+    .post-header { border-bottom: 1px solid #eee; padding-bottom: 8px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; }
+    .post-title { font-size: 1.2em; font-weight: bold; color: #1b365d; margin: 0; }
+    .post-meta { font-size: 0.85em; color: #666; }
+    .post-img { max-width: 100%; max-height: 350px; display: block; margin: 10px 0; border: 1px solid #eee; background: #fafafa; }
+    .post-desc { white-space: pre-wrap; line-height: 1.5; margin-bottom: 15px; }
+
+    /* IDバッジ */
+    .user-id { background: #e9ecef; color: #495057; padding: 2px 6px; border-radius: 3px; font-family: monospace; font-weight: bold; font-size: 0.9em; }
+    .admin-id { background: #dc3545; color: white; padding: 2px 6px; border-radius: 3px; font-family: monospace; font-weight: bold; font-size: 0.9em; }
+
+    /* コメント欄 */
+    .comments-area { background: #f8f9fa; border-top: 1px solid #e1e4e8; padding: 12px; margin-top: 10px; border-radius: 0 0 4px 4px; }
+    .comment-list { margin-bottom: 10px; }
+    .comment-item { border-bottom: 1px dotted #ccc; padding: 6px 0; font-size: 0.9em; }
+    .comment-item:last-child { border-bottom: none; }
+    .comment-form { display: flex; gap: 6px; margin-top: 8px; }
+    .comment-form input { margin-bottom: 0; padding: 6px; font-size: 0.9em; }
+    .comment-form button { background: #2c4d75; color: white; border: none; padding: 6px 12px; border-radius: 3px; cursor: pointer; white-space: nowrap; }
+    .comment-form button:hover { background: #1b365d; }
+
+    .admin-btn { background: rgba(255,255,255,0.1); color: #ccc; border: 1px solid rgba(255,255,255,0.3); padding: 4px 10px; font-size: 0.8em; cursor: pointer; border-radius: 3px; }
+    .admin-btn:hover { color: white; border-color: white; }
