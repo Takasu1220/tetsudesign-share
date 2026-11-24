@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>空想車両シリーズ - 作品共有ポータル</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <header>
+    <div class="header-inner">
+      <div>
+        <h1 class="site-title">🚃 空想車両シリーズ</h1>
+        <div class="site-sub">TetsuDesign 作品投稿・共有コミュニティ</div>
+      </div>
+      <button class="admin-btn" id="adminLoginBtn">管理人認証</button>
+    </div>
+  </header>
+
+  <nav>
+    <div class="nav-inner">
+      <a href="#top">トップ</a>
+      <a href="#post-section">作品を投稿する</a>
+      <a href="#list-section">作品リスト一覧</a>
+      <a href="#" class="create-link" id="navCreateLink" target="_blank">＋ 新規作成 (TetsuDesign)</a>
+    </div>
+  </nav>
+
+  <div class="container" id="top">
+    <!-- 左側：メインエリア -->
+    <main>
+      <!-- 投稿フォーム -->
+      <div class="box" id="post-section">
+        <div class="box-header">📝 作品の投稿（TetsuDesignで作成した画像）</div>
+        <div class="box-body">
+          <form id="postForm">
+            <input type="text" name="title" placeholder="車両名・形式（例：架空鉄道 1000系 急行型）" required>
+            <input type="text" name="author" id="authorInput" placeholder="作者名（未入力の場合は「名無しの設計士」）">
+            <textarea name="description" rows="3" placeholder="車両の解説・路線設定・こだわりポイントなど"></textarea>
+            <label style="font-size: 0.9em; font-weight: bold;">車両画像（PNG / JPG・5MBまで）：</label>
+            <input type="file" name="image" accept="image/*" required>
+            <button type="submit" class="submit-btn">作品をリストに公開する</button>
+          </form>
+        </div>
+      </div>
+
+      <!-- 作品リスト -->
+      <div class="box" id="list-section">
+        <div class="box-header">
+          <span>📋 投稿された作品リスト</span>
+          <span id="postCount" style="font-size: 0.85em; font-weight: normal;">全 0 件</span>
+        </div>
+        <div class="box-body" id="gallery">
+          <!-- ここに作品が並びます -->
+        </div>
+      </div>
+    </main>
+
+    <!-- 右側：メインメニュー（サイドバー） -->
+    <aside>
+      <div class="box">
+        <div class="box-header">🧭 メインメニュー</div>
+        <div class="box-body side-menu">
+          <a href="#" class="btn-tetsudesign" id="sideCreateLink" target="_blank">🎨 新規作成 (TetsuDesignを開く)</a>
+          <ul>
+            <li><a href="#top">🏠 トップページ</a></li>
+            <li><a href="#post-section">📤 作品を投稿する</a></li>
+            <li><a href="#list-section">🚃 作品リスト一覧</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="box">
+        <div class="box-header">ℹ️ サイト案内・ルール</div>
+        <div class="box-body" style="font-size: 0.85em; line-height: 1.6;">
+          <p style="margin-top:0;"><strong>TetsuDesign</strong>で作成したオリジナル車両の画像を投稿・共有するサイトです。</p>
+          <p style="margin-bottom:0;">・ユーザーIDは初回アクセス時に自動固定されます。<br>
+          ・他人の作品への感想は各作品のコメント欄へどうぞ！</p>
+        </div>
+      </div>
+    </aside>
+  </div>
+
+  <script>
+    // ★ここに「TetsuDesign」のURLを設定してください
+    const TETSU_DESIGN_URL = 'https://example.com'; 
+
+    document.getElementById('navCreateLink').href = TETSU_DESIGN_URL;
+    document.getElementById('sideCreateLink').href = TETSU_DESIGN_URL;
+
+    // 固定ユーザーキーの発行・読み込み
+    let fixedUserKey = localStorage.getItem('fixedUserKey');
+    if (!fixedUserKey) {
+      fixedUserKey = 'user_' + Math.random().toString(36).substring(2) + Date.now().toString(36);
+      localStorage.setItem('fixedUserKey', fixedUserKey);
+    }
+
+    // 管理人状態の確認
+    if (localStorage.getItem('isAdmin') === 'true') {
+      document.getElementById('adminLoginBtn').textContent = '★KANRININ ログイン中';
+      document.getElementById('adminLoginBtn').style.background = '#dc3545';
+      document.getElementById('adminLoginBtn').style.color = 'white';
+    }
+
+    document.getElementById('adminLoginBtn').addEventListener('click', async () => {
+      const secret = prompt('管理人パスワードを入力してください：');
+      if (!secret) return;
+
+      const res = await fetch('/api/verify-admin', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ secret: secret })
+      });
+
+      if (res.ok) {
+        fixedUserKey = secret;
+        localStorage.setItem('fixedUserKey', fixedUserKey);
+        localStorage.setItem('isAdmin', 'true');
+        alert('管理人（KANRININ）として認証されました！');
+        location.reload();
+      } else {
+        alert('パスワードが違います。');
+      }
+    });
+
+    document.getElementById('authorInput').value = localStorage.getItem('savedAuthor') || '';
+
+    // 作品リストとコメントの描画
+    async function loadPosts() {
+      const res = await fetch('/api/posts');
+      const posts = await res.json();
+      
+      document.getElementById('postCount').textContent = `全 ${posts.length} 件`;
+      const gallery = document.getElementById('gallery');
+
+      if (!Array.isArray(posts) || posts.length === 0) {
+        gallery.innerHTML = '<p style="color:#666; text-align:center;">まだ投稿がありません。最初の車両を投稿してみましょう！</p>';
+        return;
+      }
+
+      const isAdmin = localStorage.getItem('isAdmin') === 'true';
+      
+      gallery.innerHTML = posts.map(post => {
+        const idClass = post.userId === 'KANRININ' ? 'admin-id' : 'user-id';
+        const deleteBtnHtml = isAdmin 
+          ? `<button class="delete-btn" onclick="deletePost(${post.id})">🗑️ 削除</button>` 
+          : '';
+        
+        const commentsHtml = (post.comments || []).map(c => {
+          const cIdClass = c.userId === 'KANRININ' ? 'admin-id' : 'user-id';
+          return `
+            <div class="comment-item">
+              <strong>${c.author}</strong> <span class="${cIdClass}">${c.userId}</span>
+              <span style="color:#888; font-size:0.85em;">(${c.createdAt})</span><br>
+              <span>${c.text}</span>
+            </div>
+          `;
+        }).join('');
+
+        return `
+          <div class="post-item">
+            <div class="post-header">
+              <h3 class="post-title">${post.title}</h3>
+              <div class="post-meta">
+                作者: <strong>${post.author}</strong> <span class="${idClass}">${post.userId}</span> / ${post.createdAt}
+                ${deleteBtnHtml}
+              </div>
+            </div>
+            <img class="post-img" src="${post.imageUrl}" alt="${post.title}">
+            <div class="post-desc">${post.description}</div>
+
+            <div class="comments-area">
+              <div style="font-weight:bold; font-size:0.9em; margin-bottom:5px; color:#444;">💬 コメント (${(post.comments || []).length}件)</div>
+              <div class="comment-list">
+                ${commentsHtml || '<div style="color:#888; font-size:0.85em;">コメントはまだありません</div>'}
+              </div>
+              <form class="comment-form" onsubmit="submitComment(event, ${post.id})">
+                <input type="text" name="commentText" placeholder="感想やコメントを書く..." required>
+                <button type="submit">送信</button>
+              </form>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // 作品の投稿処理
+    document.getElementById('postForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      localStorage.setItem('savedAuthor', document.getElementById('authorInput').value);
+
+      const formData = new FormData(e.target);
+      formData.append('userKey', fixedUserKey);
+
+      const res = await fetch('/api/posts', {
+        method: 'POST',
+        body: formData
+      });
+
+      if (res.ok) {
+        e.target.title.value = '';
+        e.target.description.value = '';
+        e.target.image.value = '';
+        loadPosts();
+      } else {
+        alert('投稿に失敗しました。画像サイズが大きすぎる可能性があります。');
+      }
+    });
+
+    // コメントの送信処理
+    async function submitComment(e, postId) {
+      e.preventDefault();
+      const input = e.target.commentText;
+      const text = input.value;
+      const author = document.getElementById('authorInput').value || '名無しの閲覧者';
+
+      await fetch(`/api/posts/${postId}/comments`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          author: author,
+          userKey: fixedUserKey,
+          text: text
+        })
+      });
+
+      input.value = '';
+      loadPosts();
+    }
+
+    // 作品削除処理（管理人専用）
+    async function deletePost(postId) {
+      if (!confirm('本当にこの作品を削除しますか？（元に戻せません）')) return;
+
+      const res = await fetch(`/api/posts/${postId}`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userKey: fixedUserKey })
+      });
+
+      if (res.ok) {
+        loadPosts();
+      } else {
+        alert('削除に失敗しました（管理人権限がありません）');
+      }
+    }
+
+    loadPosts();
+  </script>
+</body>
+</html>
+
